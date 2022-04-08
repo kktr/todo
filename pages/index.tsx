@@ -14,6 +14,7 @@ const Home: NextPage = () => {
   const [todos, setTodos] = useState([
     { id: 0, text: 'Learn Next.js', done: false, isEdit: false },
   ]);
+  const [display, setDisplay] = useState<string>('all');
 
   const textChangeHandler = (event: ChangeEvent<HTMLInputElement>) => {
     setEnteredText(event.target.value);
@@ -82,8 +83,10 @@ const Home: NextPage = () => {
       </form>
 
       <div>
-        {todos.map((todo, index) =>
-          !todo.isEdit ? (
+        {todos.map((todo, index) => {
+          if (display === 'done' && todo.done === false) return;
+          if (display === 'todo' && todo.done === true) return;
+          return !todo.isEdit ? (
             <div key={todo.id}>
               <div
                 id={`todo-${todo.id}`}
@@ -146,6 +149,8 @@ const Home: NextPage = () => {
                     isEdit: false,
                   })
                 );
+
+                setEditedTextTodo(null);
               }}
             >
               <div>
@@ -174,9 +179,31 @@ const Home: NextPage = () => {
                 </button>
               </div>
             </form>
-          )
-        )}
+          );
+        })}
       </div>
+
+      <button
+        onClick={() => {
+          setDisplay('all');
+        }}
+      >
+        ALL
+      </button>
+      <button
+        onClick={() => {
+          setDisplay('todo');
+        }}
+      >
+        TODO
+      </button>
+      <button
+        onClick={() => {
+          setDisplay('done');
+        }}
+      >
+        DONE
+      </button>
     </div>
   );
 };
