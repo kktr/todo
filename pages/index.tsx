@@ -2,18 +2,18 @@ import type { NextPage } from 'next';
 import { ChangeEvent, useState } from 'react';
 import styles from '../styles/Home.module.css';
 
+interface IItem {
+  id: number;
+  text: string;
+  done: boolean;
+  isEdit: boolean;
+}
+
 const Home: NextPage = () => {
   const [enteredText, setEnteredText] = useState<string>('');
-  const [editedTodo, setEditedTodo] = useState<{
-    id: number;
-    text: string;
-    done: boolean;
-    isEdit: boolean;
-  }>();
+  const [editedTodo, setEditedTodo] = useState<IItem>();
   const [editedTextTodo, setEditedTextTodo] = useState<string | null>(null);
-  const [todos, setTodos] = useState([
-    { id: 0, text: 'Learn Next.js', done: false, isEdit: false },
-  ]);
+  const [todos, setTodos] = useState<IItem[] | null>(null);
   const [display, setDisplay] = useState<string>('all');
   const [isEdit, setIsEdit] = useState<boolean>(false);
 
@@ -32,12 +32,18 @@ const Home: NextPage = () => {
   };
 
   const addTodo = (newTodo: string, isDone: boolean) => {
-    let lastIndex = todos.length > 0 ? todos[todos.length - 1].id + 1 : 0;
+    // let lastIndex = todos !== null ? todos[todos.length - 1].id + 1 : 0;
 
-    setTodos([
-      ...todos,
-      { id: lastIndex, text: newTodo, done: isDone, isEdit: false },
-    ]);
+    if (todos !== null && todos.length !== 0) {
+      let newId = todos[todos.length - 1].id + 1;
+      setTodos([
+        ...todos,
+        { id: newId, text: newTodo, done: isDone, isEdit: false },
+      ]);
+    } else {
+      let newId = 0;
+      setTodos([{ id: newId, text: newTodo, done: isDone, isEdit: false }]);
+    }
   };
 
   const editTodos = (
@@ -84,107 +90,110 @@ const Home: NextPage = () => {
       </form>
 
       <div>
-        {todos.map((todo, index) => {
-          if (display === 'done' && todo.done === false) return;
-          if (display === 'todo' && todo.done === true) return;
-          return !todo.isEdit ? (
-            <div key={todo.id}>
-              <div
-                id={`todo-${todo.id}`}
-                className={todo.done ? 'finished' : 'unfinished'}
-              >
-                {todo.text}
+        {todos &&
+          todos.map((todo, index) => {
+            if (display === 'done' && todo.done === false) return;
+            if (display === 'todo' && todo.done === true) return;
+            return !todo.isEdit ? (
+              <div key={todo.id}>
+                <div
+                  id={`todo-${todo.id}`}
+                  className={todo.done ? 'finished' : 'unfinished'}
+                >
+                  {todo.text}
+                </div>
+                <button
+                  onClick={() => {
+                    const oldTodo = todos[index];
+
+                    setTodos(
+                      editTodos(todos, {
+                        id: oldTodo.id,
+                        text: oldTodo.text,
+                        done: !oldTodo.done,
+                        isEdit: false,
+                      })
+                    );
+                  }}
+                >
+                  done
+                </button>
+                <button
+                  onClick={() => {
+                    if (isEdit) return;
+                    setIsEdit(true);
+
+                    const oldTodo = todos[index];
+
+                    setTodos(
+                      editTodos(todos, {
+                        id: oldTodo.id,
+                        text: oldTodo.text,
+                        done: oldTodo.done,
+                        isEdit: true,
+                      })
+                    );
+                  }}
+                >
+                  edit
+                </button>
+                <button
+                  onClick={() => {
+                    setTodos(deleteTodo(todos, todos[index]));
+                  }}
+                >
+                  delete
+                </button>
               </div>
-              <button
-                onClick={() => {
+            ) : (
+              <form
+                onSubmit={() => {
                   const oldTodo = todos[index];
+                  setIsEdit(false);
 
                   setTodos(
                     editTodos(todos, {
                       id: oldTodo.id,
-                      text: oldTodo.text,
-                      done: !oldTodo.done,
+                      text:
+                        editedTextTodo !== null ? editedTextTodo : oldTodo.text,
+                      done: oldTodo.done,
                       isEdit: false,
                     })
                   );
+
+                  setEditedTextTodo(null);
                 }}
               >
-                done
-              </button>
-              <button
-                onClick={() => {
-                  if (isEdit) return;
-                  setIsEdit(true);
+                <div>
+                  <div className={styles.control}>
+                    <label htmlFor="editedTodo" className={styles.label}>
+                      edit:
+                    </label>
 
-                  const oldTodo = todos[index];
-
-                  setTodos(
-                    editTodos(todos, {
-                      id: oldTodo.id,
-                      text: oldTodo.text,
-                      done: oldTodo.done,
-                      isEdit: true,
-                    })
-                  );
-                }}
-              >
-                edit
-              </button>
-              <button
-                onClick={() => {
-                  setTodos(deleteTodo(todos, todos[index]));
-                }}
-              >
-                delete
-              </button>
-            </div>
-          ) : (
-            <form
-              onSubmit={() => {
-                const oldTodo = todos[index];
-                setIsEdit(false);
-
-                setTodos(
-                  editTodos(todos, {
-                    id: oldTodo.id,
-                    text:
-                      editedTextTodo !== null ? editedTextTodo : oldTodo.text,
-                    done: oldTodo.done,
-                    isEdit: false,
-                  })
-                );
-
-                setEditedTextTodo(null);
-              }}
-            >
-              <div>
-                <div className={styles.control}>
-                  <label htmlFor="editedTodo" className={styles.label}>
-                    edit:
-                  </label>
-
-                  <input
-                    id="editedTodo"
-                    type="text"
-                    required
-                    value={editedTextTodo !== null ? editedTextTodo : todo.text}
-                    onChange={todoEditHandler}
-                    className={`${styles.input} form-control`}
-                  />
+                    <input
+                      id="editedTodo"
+                      type="text"
+                      required
+                      value={
+                        editedTextTodo !== null ? editedTextTodo : todo.text
+                      }
+                      onChange={todoEditHandler}
+                      className={`${styles.input} form-control`}
+                    />
+                  </div>
                 </div>
-              </div>
-              <div className="">
-                <button
-                  id="submit-form"
-                  type="submit"
-                  className={styles.button}
-                >
-                  save
-                </button>
-              </div>
-            </form>
-          );
-        })}
+                <div className="">
+                  <button
+                    id="submit-form"
+                    type="submit"
+                    className={styles.button}
+                  >
+                    save
+                  </button>
+                </div>
+              </form>
+            );
+          })}
       </div>
 
       <button
