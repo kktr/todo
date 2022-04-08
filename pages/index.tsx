@@ -15,6 +15,7 @@ const Home: NextPage = () => {
     { id: 0, text: 'Learn Next.js', done: false, isEdit: false },
   ]);
   const [display, setDisplay] = useState<string>('all');
+  const [isEdit, setIsEdit] = useState<boolean>(false);
 
   const textChangeHandler = (event: ChangeEvent<HTMLInputElement>) => {
     setEnteredText(event.target.value);
@@ -77,7 +78,7 @@ const Home: NextPage = () => {
         </div>
         <div className="">
           <button id="submit-form" type="submit" className={styles.button}>
-            GO
+            ADD
           </button>
         </div>
       </form>
@@ -112,6 +113,9 @@ const Home: NextPage = () => {
               </button>
               <button
                 onClick={() => {
+                  if (isEdit) return;
+                  setIsEdit(true);
+
                   const oldTodo = todos[index];
 
                   setTodos(
@@ -128,7 +132,6 @@ const Home: NextPage = () => {
               </button>
               <button
                 onClick={() => {
-                  console.log(deleteTodo(todos, todos[index]));
                   setTodos(deleteTodo(todos, todos[index]));
                 }}
               >
@@ -139,6 +142,7 @@ const Home: NextPage = () => {
             <form
               onSubmit={() => {
                 const oldTodo = todos[index];
+                setIsEdit(false);
 
                 setTodos(
                   editTodos(todos, {
@@ -156,7 +160,7 @@ const Home: NextPage = () => {
               <div>
                 <div className={styles.control}>
                   <label htmlFor="editedTodo" className={styles.label}>
-                    edit todo
+                    edit:
                   </label>
 
                   <input
