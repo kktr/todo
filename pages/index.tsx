@@ -2,6 +2,7 @@ import type { NextPage } from 'next';
 import { ChangeEvent, useState } from 'react';
 import styles from '../styles/Home.module.css';
 
+type ITaskList = ITask[];
 interface ITask {
   id: number;
   text: string;
@@ -9,13 +10,21 @@ interface ITask {
   isEdit: boolean;
 }
 
+enum TaskType {
+  All = 'ALL',
+  Done = 'DONE',
+  Undone = 'UNDONE',
+}
+
 const Home: NextPage = () => {
   const [enteredText, setEnteredText] = useState<string>('');
   const [editedTask, setEditedTask] = useState<ITask>();
   const [textEditedTask, setTextEditedTask] = useState<string | null>(null);
-  const [tasksList, setTasksList] = useState<ITask[] | null>(null);
-  const [tasksTypeToDisplay, setTasksTypeToDisplay] = useState<string>('all');
+  const [tasksList, setTasksList] = useState<ITaskList | null>(null);
   const [isEdit, setIsEdit] = useState<boolean>(false);
+  const [tasksTypeToDisplay, setTasksTypeToDisplay] = useState<TaskType>(
+    TaskType.All
+  );
 
   const textChangeHandler = (event: ChangeEvent<HTMLInputElement>) => {
     setEnteredText(event.target.value);
@@ -196,21 +205,21 @@ const Home: NextPage = () => {
 
       <button
         onClick={() => {
-          setTasksTypeToDisplay('all');
+          setTasksTypeToDisplay(TaskType.All);
         }}
       >
         ALL
       </button>
       <button
         onClick={() => {
-          setTasksTypeToDisplay('todo');
+          setTasksTypeToDisplay(TaskType.Undone);
         }}
       >
         TODO
       </button>
       <button
         onClick={() => {
-          setTasksTypeToDisplay('done');
+          setTasksTypeToDisplay(TaskType.Done);
         }}
       >
         DONE
