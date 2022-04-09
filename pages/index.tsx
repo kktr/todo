@@ -8,7 +8,6 @@ interface ITask {
   title: string;
   description?: string;
   completed: boolean;
-  isEdit: boolean;
 }
 
 enum TaskType {
@@ -26,8 +25,7 @@ const Home: NextPage = () => {
   const [enteredTitleEditedTask, setEnteredTitleEditedTask] = useState<
     string | null
   >(null);
-  const [editedTask, setEditedTask] = useState<ITask>();
-  const [isEdit, setIsEdit] = useState<boolean>(false);
+  const [editedTask, setEditedTask] = useState<ITask | null>(null);
   const [hightestId, setHightestId] = useState<number>(0);
 
   const titleChangeNewTaskHandler = (event: ChangeEvent<HTMLInputElement>) => {
@@ -56,7 +54,6 @@ const Home: NextPage = () => {
           id: newId,
           title: newTaskTitle,
           completed: isCompleted,
-          isEdit: false,
         },
       ]);
     } else {
@@ -65,7 +62,6 @@ const Home: NextPage = () => {
           id: newId,
           title: newTaskTitle,
           completed: isCompleted,
-          isEdit: false,
         },
       ]);
     }
@@ -131,7 +127,7 @@ const Home: NextPage = () => {
               task.completed === true
             )
               return;
-            return !task.isEdit ? (
+            return !editedTask ? (
               <li key={`task task--${task.id}`}>
                 <div
                   className={`task_name task_name--${task.id} ${
@@ -164,17 +160,8 @@ const Home: NextPage = () => {
                   <button
                     className={`task_button task_button--edit`}
                     onClick={() => {
-                      if (isEdit) return;
-
-                      const oldTask = tasksList[index];
-                      setIsEdit(true);
-
-                      setTasksList(
-                        editTaskInTasksList(tasksList, {
-                          ...oldTask,
-                          isEdit: true,
-                        })
-                      );
+                      if (editedTask) return;
+                      setEditedTask(tasksList[index]);
                     }}
                   >
                     edit
@@ -196,20 +183,18 @@ const Home: NextPage = () => {
                 key={`form-change-title--task-${task.id}`}
                 className={`form-change-title form-change-title--task-${task.id}`}
                 onSubmit={() => {
-                  const oldTask = tasksList[index];
-                  setIsEdit(false);
-
                   setTasksList(
                     editTaskInTasksList(tasksList, {
-                      ...oldTask,
+                      ...editedTask,
                       title:
                         enteredTitleEditedTask !== null
                           ? enteredTitleEditedTask
-                          : oldTask.title,
+                          : editedTask.title,
                       isEdit: false,
                     })
                   );
 
+                  setEditedTask(null);
                   setEnteredTitleEditedTask(null);
                 }}
               >
