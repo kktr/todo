@@ -16,10 +16,10 @@ a {
 }
 
 
-.finished {
+.task_name--completed {
   color: green;
 }
 
-.unfinished {
+.task_name--uncompleted {
   color: red
 }
