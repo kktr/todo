@@ -2,7 +2,7 @@ import type { NextPage } from 'next';
 import { ChangeEvent, useState } from 'react';
 import styles from '../styles/Home.module.css';
 
-interface IItem {
+interface ITask {
   id: number;
   text: string;
   done: boolean;
@@ -11,10 +11,10 @@ interface IItem {
 
 const Home: NextPage = () => {
   const [enteredText, setEnteredText] = useState<string>('');
-  const [editedTodo, setEditedTodo] = useState<IItem>();
-  const [editedTextTodo, setEditedTextTodo] = useState<string | null>(null);
-  const [todos, setTodos] = useState<IItem[] | null>(null);
-  const [display, setDisplay] = useState<string>('all');
+  const [editedTask, setEditedTask] = useState<ITask>();
+  const [textEditedTask, setTextEditedTask] = useState<string | null>(null);
+  const [tasksList, setTasksList] = useState<ITask[] | null>(null);
+  const [tasksTypeToDisplay, setTasksTypeToDisplay] = useState<string>('all');
   const [isEdit, setIsEdit] = useState<boolean>(false);
 
   const textChangeHandler = (event: ChangeEvent<HTMLInputElement>) => {
@@ -22,50 +22,48 @@ const Home: NextPage = () => {
   };
 
   const todoEditHandler = (event: ChangeEvent<HTMLInputElement>) => {
-    setEditedTextTodo(event.target.value);
+    setTextEditedTask(event.target.value);
   };
 
-  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const submitNewItem = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     addTodo(enteredText, false);
     setEnteredText('');
   };
 
   const addTodo = (newTodo: string, isDone: boolean) => {
-    // let lastIndex = todos !== null ? todos[todos.length - 1].id + 1 : 0;
-
-    if (todos !== null && todos.length !== 0) {
-      let newId = todos[todos.length - 1].id + 1;
-      setTodos([
-        ...todos,
+    if (tasksList !== null && tasksList.length !== 0) {
+      let newId = tasksList[tasksList.length - 1].id + 1;
+      setTasksList([
+        ...tasksList,
         { id: newId, text: newTodo, done: isDone, isEdit: false },
       ]);
     } else {
       let newId = 0;
-      setTodos([{ id: newId, text: newTodo, done: isDone, isEdit: false }]);
+      setTasksList([{ id: newId, text: newTodo, done: isDone, isEdit: false }]);
     }
   };
 
-  const editTodos = (
-    editedTodos: any[],
-    replacedTodo: { id: any; text?: string; done?: boolean; isEdit?: boolean }
+  const editArray = (
+    editedArray: any[],
+    replacedItem: { id: any; text?: string; done?: boolean; isEdit?: boolean }
   ) => {
-    return editedTodos.map((element) => {
-      if (element.id === replacedTodo.id) {
-        return replacedTodo;
+    return editedArray.map((element) => {
+      if (element.id === replacedItem.id) {
+        return replacedItem;
       } else return element;
     });
   };
 
-  const deleteTodo = (todos, deletedTodo) => {
-    return todos.filter((todo) => todo.id !== deletedTodo.id);
+  const deleteTodo = (tasksList, deletedTodo) => {
+    return tasksList.filter((todo) => todo.id !== deletedTodo.id);
   };
 
   return (
     <div className={styles.container}>
-      <h1>todos</h1>
+      <h1>tasksList</h1>
 
-      <form onSubmit={onSubmit}>
+      <form onSubmit={submitNewItem}>
         <div>
           <div className={styles.control}>
             <label htmlFor="todo" className={styles.label}>
@@ -90,10 +88,10 @@ const Home: NextPage = () => {
       </form>
 
       <div>
-        {todos &&
-          todos.map((todo, index) => {
-            if (display === 'done' && todo.done === false) return;
-            if (display === 'todo' && todo.done === true) return;
+        {tasksList &&
+          tasksList.map((todo, index) => {
+            if (tasksTypeToDisplay === 'done' && todo.done === false) return;
+            if (tasksTypeToDisplay === 'todo' && todo.done === true) return;
             return !todo.isEdit ? (
               <div key={todo.id}>
                 <div
@@ -104,10 +102,10 @@ const Home: NextPage = () => {
                 </div>
                 <button
                   onClick={() => {
-                    const oldTodo = todos[index];
+                    const oldTodo = tasksList[index];
 
-                    setTodos(
-                      editTodos(todos, {
+                    setTasksList(
+                      editArray(tasksList, {
                         id: oldTodo.id,
                         text: oldTodo.text,
                         done: !oldTodo.done,
@@ -123,10 +121,10 @@ const Home: NextPage = () => {
                     if (isEdit) return;
                     setIsEdit(true);
 
-                    const oldTodo = todos[index];
+                    const oldTodo = tasksList[index];
 
-                    setTodos(
-                      editTodos(todos, {
+                    setTasksList(
+                      editArray(tasksList, {
                         id: oldTodo.id,
                         text: oldTodo.text,
                         done: oldTodo.done,
@@ -139,7 +137,7 @@ const Home: NextPage = () => {
                 </button>
                 <button
                   onClick={() => {
-                    setTodos(deleteTodo(todos, todos[index]));
+                    setTasksList(deleteTodo(tasksList, tasksList[index]));
                   }}
                 >
                   delete
@@ -148,20 +146,20 @@ const Home: NextPage = () => {
             ) : (
               <form
                 onSubmit={() => {
-                  const oldTodo = todos[index];
+                  const oldTodo = tasksList[index];
                   setIsEdit(false);
 
-                  setTodos(
-                    editTodos(todos, {
+                  setTasksList(
+                    editArray(tasksList, {
                       id: oldTodo.id,
                       text:
-                        editedTextTodo !== null ? editedTextTodo : oldTodo.text,
+                        textEditedTask !== null ? textEditedTask : oldTodo.text,
                       done: oldTodo.done,
                       isEdit: false,
                     })
                   );
 
-                  setEditedTextTodo(null);
+                  setTextEditedTask(null);
                 }}
               >
                 <div>
@@ -175,7 +173,7 @@ const Home: NextPage = () => {
                       type="text"
                       required
                       value={
-                        editedTextTodo !== null ? editedTextTodo : todo.text
+                        textEditedTask !== null ? textEditedTask : todo.text
                       }
                       onChange={todoEditHandler}
                       className={`${styles.input} form-control`}
@@ -198,21 +196,21 @@ const Home: NextPage = () => {
 
       <button
         onClick={() => {
-          setDisplay('all');
+          setTasksTypeToDisplay('all');
         }}
       >
         ALL
       </button>
       <button
         onClick={() => {
-          setDisplay('todo');
+          setTasksTypeToDisplay('todo');
         }}
       >
         TODO
       </button>
       <button
         onClick={() => {
-          setDisplay('done');
+          setTasksTypeToDisplay('done');
         }}
       >
         DONE
