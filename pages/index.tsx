@@ -2,7 +2,49 @@ import type { NextPage } from 'next';
 import { ChangeEvent, useState } from 'react';
 import styles from '../styles/Home.module.css';
 
-type ITaskList = ITask[];
+export interface IApi {
+  getTasksList(): Promise<IGetTasksListResponse>;
+  // submitQuestionnaire(questionnaire: IQuestionnaire): Promise<IQuestionnaire>;
+}
+
+export interface IGetTasksListResponse {
+  tasksList: ITasksList;
+}
+
+const exampleResponse: IGetTasksListResponse = {
+  tasksList: [
+    {
+      id: 1,
+      title: 'Task 1',
+      description: 'Description 1',
+      completed: false,
+    },
+    {
+      id: 2,
+      title: 'Task 2',
+      description: 'Description 2',
+      completed: false,
+    },
+    {
+      id: 3,
+      title: 'Task 3',
+      description: 'Description 3',
+      completed: false,
+    },
+  ],
+};
+
+class DumpApi implements IApi {
+  getTasksList(): Promise<IGetTasksListResponse> {
+    return new Promise((resolve) =>
+      setTimeout(() => resolve(exampleResponse), 1000)
+    );
+  }
+}
+
+const api = new DumpApi();
+
+type ITasksList = ITask[];
 interface ITask {
   id: number;
   title: string;
@@ -17,7 +59,7 @@ enum TaskType {
 }
 
 const Home: NextPage = () => {
-  const [tasksList, setTasksList] = useState<ITaskList | null>(null);
+  const [tasksList, setTasksList] = useState<ITasksList | null>(null);
   const [tasksTypeToDisplay, setTasksTypeToDisplay] = useState<TaskType>(
     TaskType.All
   );
@@ -69,7 +111,7 @@ const Home: NextPage = () => {
   };
 
   const editTaskInTasksList = (
-    editedTaskList: ITaskList,
+    editedTaskList: ITasksList,
     replacedTask: ITask
   ) => {
     return editedTaskList.map((task) => {
@@ -78,7 +120,7 @@ const Home: NextPage = () => {
   };
 
   const deleteTaskInTasksList = (
-    editedTaskList: ITaskList,
+    editedTaskList: ITasksList,
     deletedTask: ITask
   ) => {
     return editedTaskList.filter(
