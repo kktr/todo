@@ -74,7 +74,6 @@ const Home: NextPage = () => {
       id: any;
       title?: string;
       completed?: boolean;
-      isEdit?: boolean;
     }
   ) => {
     return editedTaskList.map((task) => {
@@ -190,7 +189,6 @@ const Home: NextPage = () => {
                         enteredTitleEditedTask !== null
                           ? enteredTitleEditedTask
                           : editedTask.title,
-                      isEdit: false,
                     })
                   );
 
