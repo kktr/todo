@@ -68,13 +68,19 @@ const Home: NextPage = () => {
     setHightestId((previousHightestId) => previousHightestId + 1);
   };
 
-  const editTaskInTasksList = (editedTaskList: any[], replacedTask: ITask) => {
+  const editTaskInTasksList = (
+    editedTaskList: ITaskList,
+    replacedTask: ITask
+  ) => {
     return editedTaskList.map((task) => {
       return task.id === replacedTask.id ? replacedTask : task;
     });
   };
 
-  const deleteTaskInTasksList = (editedTaskList: any[], deletedTask: ITask) => {
+  const deleteTaskInTasksList = (
+    editedTaskList: ITaskList,
+    deletedTask: ITask
+  ) => {
     return editedTaskList.filter(
       (Task: { id: number }) => Task.id !== deletedTask.id
     );
@@ -138,7 +144,6 @@ const Home: NextPage = () => {
                     onClick={() => {
                       const oldTask = tasksList[index];
 
-                      console.log(!oldTask.completed);
                       setTasksList(
                         editTaskInTasksList(tasksList, {
                           ...oldTask,
