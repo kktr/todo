@@ -68,14 +68,7 @@ const Home: NextPage = () => {
     setHightestId((previousHightestId) => previousHightestId + 1);
   };
 
-  const editTaskInTasksList = (
-    editedTaskList: any[],
-    replacedTask: {
-      id: any;
-      title?: string;
-      completed?: boolean;
-    }
-  ) => {
+  const editTaskInTasksList = (editedTaskList: any[], replacedTask: ITask) => {
     return editedTaskList.map((task) => {
       return task.id === replacedTask.id ? replacedTask : task;
     });
